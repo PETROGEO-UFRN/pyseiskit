@@ -1,7 +1,8 @@
+# Multiple-export modules
 from .modules import gain
-from .modules import palettes
 from .modules import sourceData
 from .modules import clip
 
-# Expose the applyGains function directly at the root
+# Single-export modules/items exposed directly at the root
+from .modules.palettes.PALETTES import PALETTES
 from .modules.applyGains.applyGains import applyGains, GainType
