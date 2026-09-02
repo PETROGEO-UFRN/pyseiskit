@@ -1,0 +1,1 @@
+from .clipAdapter import createClipAdapter

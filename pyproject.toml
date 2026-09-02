@@ -1,0 +1,25 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pyseiskit"
+version = "0.1.0"
+description = "A Python library for seismic data processing and pre-visualization."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [
+    { name = "Author", email = "author@example.com" },
+]
+dependencies = [
+    "numpy",
+    "scipy",
+]
+
+[project.urls]
+Homepage = "https://github.com/PETROGEO-UFRN/pyseiskit"
+
+[tool.hatch.build.targets.wheel]
+packages = ["pyseiskit"]
+

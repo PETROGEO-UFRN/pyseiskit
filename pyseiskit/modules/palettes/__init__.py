@@ -1,0 +1,1 @@
+from .PALETTES import PALETTES
