@@ -1,1 +1,2 @@
-from .applyGains import applyGains, GainType
+from .applyGains import applyGains
+from .contracts.GainsDictType import GainsDictType, GainKeyType

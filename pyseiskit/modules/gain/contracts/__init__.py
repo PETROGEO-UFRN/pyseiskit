@@ -1,2 +1,4 @@
-from .GenericGain import GenericGainProtocol
 from .AutomaticGain import AutomaticGainContract
+from .TimePowerGainContract import TimePowerGainContract
+from .ExponentialGainContract import ExponentialGainContract
+from .AmplitudePowerGainContract import AmplitudePowerGainContract

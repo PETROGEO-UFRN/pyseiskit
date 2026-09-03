@@ -1,8 +1,7 @@
 import numpy.typing as np_types
+from typing import Protocol
 
-from .GenericGain import GenericGainProtocol
-
-class AutomaticGainProtocol(GenericGainProtocol):
+class AutomaticGainProtocol(Protocol):
     def __call__(
         self,
         gatherAmplitudes: np_types.NDArray,
@@ -14,8 +13,8 @@ class AutomaticGainProtocol(GenericGainProtocol):
         """
         ...
 
-def AutomaticGainContract(function: AutomaticGainProtocol) -> AutomaticGainProtocol:
+def AutomaticGainContract(callback: AutomaticGainProtocol) -> AutomaticGainProtocol:
     """
     Decorator that forces type checkers to verify the function matches AutomaticGainProtocol.
     """
-    return function
+    return callback

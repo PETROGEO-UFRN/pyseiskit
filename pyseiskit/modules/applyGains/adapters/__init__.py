@@ -1,1 +1,4 @@
 from .clipAdapter import createClipAdapter
+from .amplitudePowerGainAdapter import createAmplitudePowerGainAdapter
+from .asymmetricClipAdapter import createAsymmetricClipAdapter
+from .genericGainAdapter import createGenericGainAdapter
