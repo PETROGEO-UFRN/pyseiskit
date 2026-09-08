@@ -18,5 +18,5 @@ def applyAmplitudePowerGain(
     power : float
         Exponent applied to amplitude.
     """
-    # Equivalent to SU's val >= 0.0 ? pow(val, gpow) : -pow(-val, gpow)
+    # Maintain polarity during exponentiation
     return np.sign(gatherAmplitudes) * (np.abs(gatherAmplitudes) ** power)

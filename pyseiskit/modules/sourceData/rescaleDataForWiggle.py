@@ -13,12 +13,12 @@ def rescaleDataForWiggle(
     Args:
         data: 2D array of amplitudes (samples x traces).
         offsetPosition: 1D array of horizontal trace locations.
-        overlap: Controls the maximum horizontal swing. A value of 1.0 (Seismic Unix 'xcur' equivalent)
+        overlap: Controls the maximum horizontal swing. A value of 1.0
             means a maximum amplitude peak will swing exactly 1.0 trace spacing, touching the baseline
             of the adjacent trace.
         percentile: Percentile of absolute amplitudes used as the maximum for scaling.
             Values < 100.0 (e.g., 99.0) ignore extreme outlier spikes when determining the
-            normalization reference, mirroring the behavior of Seismic Unix's 'perc' parameter.
+            normalization reference percentile.
     """
     # Determine maximum scale reference using the specified percentile
     if percentile < 100.0:

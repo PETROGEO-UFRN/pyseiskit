@@ -23,7 +23,7 @@ def applyTimePowerGain(
     """
     timeVector = np.arange(gatherAmplitudes.shape[0]) * intervalTimeSamples
     
-    # SU handles t=0 by setting the factor to 0.0 to prevent domain errors for negative powers
+    # Handle t=0 by setting the factor to 0.0 to prevent domain errors for negative powers
     factor = np.where(timeVector > 0.0, timeVector ** power, 0.0)
     
     # Broadcast time factor across all traces
