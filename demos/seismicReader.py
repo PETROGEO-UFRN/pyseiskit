@@ -32,14 +32,14 @@ def readSeismicFile(filePath, gatherKey=None, gatherIndex=None):
                 
             availableGathers = sorted(keyToTraceIndices.keys())
             if not availableGathers:
-                raise ValueError(f"No headerValueid headerValueues found for header key {gatherKey}")
+                raise ValueError(f"No valid values found for header key {gatherKey}")
                 
             # Safely select the requested gather index
             safeGatherIndex = max(0, min(gatherIndex, len(availableGathers) - 1))
             selected_gather_headerValue = availableGathers[safeGatherIndex]
             targetTraceIndices = keyToTraceIndices[selected_gather_headerValue]
             
-            print(f"Selected gather {safeGatherIndex} (Header headerValueue: {selected_gather_headerValue}) containing {len(targetTraceIndices)} traces.")
+            print(f"Selected gather {safeGatherIndex} (Header value: {selected_gather_headerValue}) containing {len(targetTraceIndices)} traces.")
                 
             rawTraces = np.stack([seismicDataset.trace[traceIndex] for traceIndex in targetTraceIndices])
             
@@ -60,11 +60,11 @@ def readSeismicFile(filePath, gatherKey=None, gatherIndex=None):
         # We transpose so that data is (samples x traces) for wiggle plotting
         gatherData = rawTraces.T
         
-        # Calculate timeSamples based on sample interheaderValue
+        # Calculate timeSamples based on sample interval
         if isSeismicUnixFormat:
             sampleIntervalMicroseconds = seismicDataset.header[0][segyio.TraceField.TRACE_SAMPLE_INTERVAL]
         else:
-            sampleIntervalMicroseconds = seismicDataset.bin[segyio.BinField.InterheaderValue]
+            sampleIntervalMicroseconds = seismicDataset.bin[segyio.BinField.Interval]
             
         sampleIntervalSeconds = sampleIntervalMicroseconds / 1e6
         numberSamples = len(seismicDataset.samples)
