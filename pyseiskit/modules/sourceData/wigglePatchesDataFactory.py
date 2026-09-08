@@ -1,126 +1,93 @@
 import numpy as np
 from numpy import typing as np_types
-from typing import Tuple, List
 
-MIDPOINT_INDEX_OFFSET = 0.5
-
-def _interpolateLobeCoordinates(
-    timeSampleInstants: np_types.NDArray,
-    traceAmplitudes: np_types.NDArray,
-    traceOffset: float
-) -> Tuple[List[float], List[float]]:
-    """
-    Finds all active amplitudes and calculates the exact zero-crossing interpolation 
-    points, returning the sorted boundary coordinates for the filled lobes of a single trace.
-    Expects data to be pre-flipped if positive lobes are desired.
-    """
-    currentAmplitudes = traceAmplitudes[:-1]
-    nextAmplitudes = traceAmplitudes[1:]
-    currentTime = timeSampleInstants[:-1]
-    nextTime = timeSampleInstants[1:]
-
-    # Capture strictly negative values (since we flip the data if filling positive)
-    negativeMask = currentAmplitudes <= 0
-    negativeIndices = np.where(negativeMask)[0]
-
-    xs_neg = traceOffset + currentAmplitudes[negativeMask]
-    ys_neg = currentTime[negativeMask]
-
-    # Capture exact zero crossings
-    crossingMask = (
-        (currentAmplitudes < 0) & (nextAmplitudes > 0)
-    ) | (
-        (currentAmplitudes > 0) & (nextAmplitudes < 0)
-    )
-    crossingIndices = np.where(crossingMask)[0]
-
-    # Linear interpolation to find the exact time at zero
-    # Handle potential divide by zero just in case
-    diffAmp = nextAmplitudes[crossingMask] - currentAmplitudes[crossingMask]
-    safeDiffAmp = np.where(diffAmp == 0, 1e-10, diffAmp)
-    
-    crossingTimes = (
-        currentTime[crossingMask] + (
-            nextTime[crossingMask] - currentTime[crossingMask]
-        ) * (0 - currentAmplitudes[crossingMask]) / safeDiffAmp
-    )
-
-    xs_cross = np.full(len(crossingIndices), traceOffset)
-    ys_cross = crossingTimes
-
-    # Combine and sort to preserve the chronological order
-    sortOrder = np.argsort(np.concatenate(
-        [negativeIndices, crossingIndices + MIDPOINT_INDEX_OFFSET]
-    ))
-
-    new_xs = np.concatenate([xs_neg, xs_cross])[sortOrder].tolist()
-    new_ys = np.concatenate([ys_neg, ys_cross])[sortOrder].tolist()
-
-    # Add the last point if it is part of the lobe
-    if traceAmplitudes[-1] <= 0:
-        new_xs.append(float(traceOffset + traceAmplitudes[-1]))
-        new_ys.append(float(timeSampleInstants[-1]))
-        
-    return new_xs, new_ys
-
+from .WiggleCoordinatesType import WiggleCoordinatesType
 
 def wigglePatchesDataFactory(
     data: np_types.NDArray,
     offsetPosition: np_types.NDArray,
     timeSampleInstants: np_types.NDArray,
-    fill_mode: str = "positive"
-) -> Tuple[List[List[float]], List[List[float]]]:
+    fillMode: str = "positive"
+) -> WiggleCoordinatesType:
     """
     Generates polygon coordinates for rendering filled wiggle lobes.
     
-    This function calculates sub-sample exact zero-crossings using linear interpolation 
-    to create mathematically smooth filled areas. It is plotting-library agnostic.
-    
-    Args:
-        data: 2D array of rescaled amplitudes (samples x traces).
-        offsetPosition: 1D array of horizontal trace locations.
-        timeSampleInstants: 1D array of time/depth values for the vertical axis.
-        fill_mode: "positive" to fill right-swinging lobes, "negative" for left-swinging.
-        
-    Returns:
-        A dictionary `{"xs": [...], "ys": [...]}` where:
-            xs: List of lists containing the X coordinates for each trace's filled polygon.
-            ys: List of lists containing the Y coordinates for each trace's filled polygon.
+    Uses flat 1D vectorization across the entire seismic dataset simultaneously.
     """
-    if fill_mode not in ["positive", "negative"]:
-        raise ValueError("fill_mode must be 'positive' or 'negative'")
+    if fillMode not in ["positive", "negative"]:
+        raise ValueError("fillMode must be 'positive' or 'negative'")
 
-    # The internal algorithm extracts negative values. 
-    # If the user wants to fill positive lobes, we simply flip the polarity of the data.
-    working_data = -data if fill_mode == "positive" else data
+    numTraces = data.shape[1]
 
-    xs_patches = []
-    ys_patches = []
+    if fillMode == "positive":
+        workingData = data
+    else:
+        workingData = -data
 
-    for traceOffset, traceAmplitude in zip(offsetPosition, working_data.T):
-        lobeAmplitudes, lobeTimes = _interpolateLobeCoordinates(
-            timeSampleInstants,
-            traceAmplitude,
-            traceOffset
-        )
+    # 1. Prepare 2D time grid
+    times2D = np.broadcast_to(timeSampleInstants[:, None], workingData.shape).astype(float)
+
+    currentAmplitudes = workingData[:-1, :]
+    nextAmplitudes = workingData[1:, :]
+    currentTimes = times2D[:-1, :]
+    nextTimes = times2D[1:, :]
+
+    # 2. Extract active points globally
+    activeMask = workingData >= 0
+    activeRowIndices, activeTraceIndices = np.where(activeMask)
+    activeAmplitudesFlat = workingData[activeMask]
+    activeTimesFlat = times2D[activeMask]
+    activeSortKeys = activeRowIndices.astype(float)
+
+    # 3. Calculate exact zero-crossings globally
+    crossingMask = ((currentAmplitudes < 0) & (nextAmplitudes > 0)) | ((currentAmplitudes > 0) & (nextAmplitudes < 0))
+    crossingRowIndices, crossingTraceIndices = np.where(crossingMask)
+
+    amplitudeDifferences = nextAmplitudes[crossingMask] - currentAmplitudes[crossingMask]
+    safeAmplitudeDifferences = np.where(amplitudeDifferences == 0, 1e-10, amplitudeDifferences)
+
+    crossingTimesFlat = currentTimes[crossingMask] + (nextTimes[crossingMask] - currentTimes[crossingMask]) * (0 - currentAmplitudes[crossingMask]) / safeAmplitudeDifferences
+    crossingAmplitudesFlat = np.zeros_like(crossingTimesFlat)
+    crossingSortKeys = crossingRowIndices.astype(float) + 0.5
+
+    # 4. Flatten all points
+    allTraceIndices = np.concatenate([activeTraceIndices, crossingTraceIndices])
+    allSortKeys = np.concatenate([activeSortKeys, crossingSortKeys])
+    allAmplitudes = np.concatenate([activeAmplitudesFlat, crossingAmplitudesFlat])
+    allTimes = np.concatenate([activeTimesFlat, crossingTimesFlat])
+
+    # 5. Build full closed polygons in a flat 1D space
+    numberOfPoints = len(allAmplitudes)
+    polygonTraceIndices = np.concatenate([allTraceIndices, allTraceIndices])
+    polygonSortKeys = np.concatenate([allSortKeys, -allSortKeys])
+    polygonPhase = np.concatenate([np.zeros(numberOfPoints), np.ones(numberOfPoints)])
+
+    # Forward path (baseline) and backward path (wiggles)
+    baselineAmplitudes = offsetPosition[allTraceIndices]
     
-        # Skip if the trace has no lobes of the requested polarity
-        if not lobeAmplitudes:
-            xs_patches.append([])
-            ys_patches.append([])
-            continue
+    if fillMode == "positive":
+        backwardAmplitudes = offsetPosition[allTraceIndices] + allAmplitudes
+    else:
+        backwardAmplitudes = offsetPosition[allTraceIndices] - allAmplitudes
 
-        # Build the single continuous polygon: Lobe path + return path along the baseline
-        # Note: We must invert the amplitude back to normal if we flipped it earlier
-        if fill_mode == "positive":
-            actualAmplitudes = [traceOffset - (amp - traceOffset) for amp in lobeAmplitudes]
-        else:
-            actualAmplitudes = lobeAmplitudes
-            
-        polygonOffsetCoordinates = [traceOffset] * len(actualAmplitudes) + actualAmplitudes[::-1]
-        polygonTimeCoordinates = lobeTimes + lobeTimes[::-1]
+    polygonAmplitudesFlat = np.concatenate([baselineAmplitudes, backwardAmplitudes])
+    polygonTimesFlat = np.concatenate([allTimes, allTimes])
 
-        xs_patches.append(polygonOffsetCoordinates)
-        ys_patches.append(polygonTimeCoordinates)
+    # 6. Global sort to group by trace and properly order the polygon perimeter
+    globalPolygonSortOrder = np.lexsort((polygonSortKeys, polygonPhase, polygonTraceIndices))
 
-    return {"xs": xs_patches, "ys": ys_patches}
+    sortedPolygonTraceIndices = polygonTraceIndices[globalPolygonSortOrder]
+    sortedPolygonAmplitudes = polygonAmplitudesFlat[globalPolygonSortOrder]
+    sortedPolygonTimes = polygonTimesFlat[globalPolygonSortOrder]
+
+    # 7. Split into arrays per trace (returns a native Python list of 1D NumPy arrays)
+    traceLengths = np.bincount(sortedPolygonTraceIndices, minlength=numTraces)
+    splitIndices = np.cumsum(traceLengths)[:-1]
+
+    amplitudeCoordinates = np.split(sortedPolygonAmplitudes, splitIndices)
+    timeCoordinates = np.split(sortedPolygonTimes, splitIndices)
+
+    return {
+        "amplitudeCoordinates": amplitudeCoordinates,
+        "timeCoordinates": timeCoordinates
+    }

@@ -28,11 +28,11 @@ def plotWiggles(gatherData, timeSamples, traceOffsets, title, width=450):
         scaledGatherData,
         traceOffsets,
         timeSamples,
-        fill_mode='positive'
+        fillMode='positive'
     )
     
-    plotFigure.multi_line(**lineData, color='black', line_width=0.5)
-    plotFigure.patches(**patchData, color='black', line_width=0)
+    plotFigure.multi_line(xs=lineData['amplitudeCoordinates'], ys=lineData['timeCoordinates'], color='black', line_width=0.5)
+    plotFigure.patches(xs=patchData['amplitudeCoordinates'], ys=patchData['timeCoordinates'], color='black', line_width=0)
 
     plotFigure.xgrid.grid_line_color = None
     plotFigure.ygrid.grid_line_color = None
