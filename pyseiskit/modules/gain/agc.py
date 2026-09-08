@@ -1,6 +1,6 @@
 import numpy as np
 import numpy.typing as np_types
-from scipy import ndimage
+import scipy.ndimage
 
 from .contracts import AutomaticGainContract
 
@@ -33,7 +33,7 @@ def applyAGC(
     # *** Moving energy average
     # *** Apply the 1D filter down the time axis (axis=0) 
     # *** mode='constant' with cval=0.0 safely pads the top and bottom with zeros
-    localMeanSquaredEnergy = ndimage.convolve1d(
+    localMeanSquaredEnergy = scipy.ndimage.convolve1d(
         gatherAmplitudes**2,
         averagingWeights,
         mode='constant',

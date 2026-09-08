@@ -1,6 +1,6 @@
 import numpy as np
 import numpy.typing as np_types
-from scipy import ndimage
+import scipy.ndimage
 
 from .contracts import AutomaticGainContract
 
@@ -38,7 +38,7 @@ def applyGAGC(
     )
 
     # *** Moving energy average weighted by the Gaussian curve
-    localWeightedEnergy = ndimage.convolve1d(
+    localWeightedEnergy = scipy.ndimage.convolve1d(
         gatherAmplitudes**2,
         gaussianWeights,
         mode='constant',
