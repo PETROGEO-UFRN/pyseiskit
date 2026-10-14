@@ -1,0 +1,55 @@
+name: Publish to PyPI
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      isNewVersion: ${{ steps.version.outputs.isNewVersion }}
+    steps:
+      - uses: actions/checkout@v7
+
+      # *** PyPI rejects re-uploading an existing version,
+      # *** so only a version bump in pyproject.toml releases.
+      - id: version
+        run: |
+          version=$(python3 -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['project']['version'])")
+          status=$(curl -s -o /dev/null -w "%{http_code}" "https://pypi.org/pypi/pyseiskit/$version/json")
+          if [ "$status" = "404" ]; then
+            echo "isNewVersion=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "pyseiskit $version is already on PyPI (HTTP $status), skipping"
+            echo "isNewVersion=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - if: steps.version.outputs.isNewVersion == 'true'
+        uses: astral-sh/setup-uv@v10
+
+      - if: steps.version.outputs.isNewVersion == 'true'
+        run: uv build
+
+      - if: steps.version.outputs.isNewVersion == 'true'
+        uses: actions/upload-artifact@v7
+        with:
+          name: dist
+          path: dist/
+
+  publish:
+    needs: build
+    if: needs.build.outputs.isNewVersion == 'true'
+    runs-on: ubuntu-latest
+    environment: pypi
+    # *** Trusted Publishing: PyPI exchanges this OIDC token for an upload token
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: dist
+          path: dist/
+
+      - uses: pypa/gh-action-pypi-publish@release/v1
