@@ -23,9 +23,11 @@ def readVelanPicks(filePath):
         parsedValues = np.array(values.split(","), dtype=float)
         if key == "cdp":
             pickedCdps = parsedValues.astype(int)
-        elif key == "tnmo":
+            continue
+        if key == "tnmo":
             pickedTimes.append(parsedValues.tolist())
-        elif key == "vnmo":
+            continue
+        if key == "vnmo":
             pickedVelocities.append(parsedValues.tolist())
 
     if not (len(pickedCdps) == len(pickedTimes) == len(pickedVelocities)):

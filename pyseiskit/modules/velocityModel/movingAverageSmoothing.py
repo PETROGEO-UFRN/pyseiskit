@@ -66,6 +66,10 @@ def applyMovingAverageSmoothing(
     halfTimeSamples = round(timeWindow / intervalTimeSamples) // 2
     halfCdps = round(cdpWindow / intervalCdps) // 2
 
+    # *** a 1 x 1 box averages each sample with itself
+    if halfTimeSamples == 0 and halfCdps == 0:
+        return velocityModel.copy()
+
     velocitySums = computeBoxSums(velocityModel, halfTimeSamples, halfCdps)
     sampleCounts = computeBoxSums(np.ones(velocityModel.shape), halfTimeSamples, halfCdps)
 
