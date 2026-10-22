@@ -3,7 +3,6 @@ import numpy.typing as np_types
 import scipy.ndimage
 
 from .contracts import MovingAverageSmoothingContract
-from .constants import TIME_AXIS, CDP_AXIS
 
 def computeBoxSums(velocityModel: np_types.NDArray, halfTimeSamples: int, halfCdps: int) -> np_types.NDArray:
     # *** mode='constant' with cval=0.0 drops the box positions outside the model from the sum
@@ -12,14 +11,14 @@ def computeBoxSums(velocityModel: np_types.NDArray, halfTimeSamples: int, halfCd
         np.ones(2 * halfTimeSamples + 1),
         mode='constant',
         cval=0.0,
-        axis=TIME_AXIS
+        axis=0
     )
     return scipy.ndimage.convolve1d(
         timeSums,
         np.ones(2 * halfCdps + 1),
         mode='constant',
         cval=0.0,
-        axis=CDP_AXIS
+        axis=1
     )
 
 @MovingAverageSmoothingContract
