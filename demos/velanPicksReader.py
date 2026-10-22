@@ -1,4 +1,5 @@
 from pathlib import Path
+import numpy as np
 
 def readVelanPicks(filePath):
     """
@@ -10,7 +11,7 @@ def readVelanPicks(filePath):
     if not path.is_file():
         raise FileNotFoundError(f"File not found: {path}")
 
-    pickedCdps = []
+    pickedCdps = np.array([], dtype=int)
     pickedTimes = []
     pickedVelocities = []
     for line in path.read_text(encoding="utf-8").splitlines():
@@ -19,18 +20,18 @@ def readVelanPicks(filePath):
             continue
 
         key, values = line.split("=", 1)
-        parsedValues = [float(value) for value in values.split(",") if value.strip()]
+        parsedValues = np.array(values.split(","), dtype=float)
         if key == "cdp":
-            pickedCdps = [int(cdp) for cdp in parsedValues]
+            pickedCdps = parsedValues.astype(int)
         elif key == "tnmo":
-            pickedTimes.append(parsedValues)
+            pickedTimes.append(parsedValues.tolist())
         elif key == "vnmo":
-            pickedVelocities.append(parsedValues)
+            pickedVelocities.append(parsedValues.tolist())
 
     if not (len(pickedCdps) == len(pickedTimes) == len(pickedVelocities)):
         raise ValueError("The picks file must have one tnmo= and one vnmo= line per CDP.")
 
-    return {
-        cdp: {"times": times, "velocity": velocities}
-        for cdp, times, velocities in zip(pickedCdps, pickedTimes, pickedVelocities)
-    }
+    velocityPicks = {}
+    for cdp, times, velocities in zip(pickedCdps, pickedTimes, pickedVelocities):
+        velocityPicks[int(cdp)] = {"times": times, "velocity": velocities}
+    return velocityPicks
