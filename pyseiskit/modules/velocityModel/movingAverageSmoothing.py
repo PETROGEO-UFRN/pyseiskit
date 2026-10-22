@@ -36,8 +36,9 @@ def applyMovingAverageSmoothing(
     \nNear the model edges the box is truncated: only the samples inside the model are
     averaged, so edge velocities are not pulled towards zero.
 
-    \nNo single SU program does it; the SU equivalent is a `suconv` (time) + `sumix` (CDPs)
-    box sum divided by the same box sum of an all-ones model.
+    \nSU has the same method one axis at a time (`suconv` with a box filter along time,
+    `sumix` with equal weights across traces); applied in sequence, with their box sums
+    divided by the same box sums of an all-ones model, they give this result.
 
     Parameters
     ----------
@@ -68,7 +69,7 @@ def applyMovingAverageSmoothing(
 
     # *** a 1 x 1 box averages each sample with itself
     if halfTimeSamples == 0 and halfCdps == 0:
-        return velocityModel.copy()
+        return np.array(velocityModel, dtype=float)
 
     velocitySums = computeBoxSums(velocityModel, halfTimeSamples, halfCdps)
     sampleCounts = computeBoxSums(np.ones(velocityModel.shape), halfTimeSamples, halfCdps)
