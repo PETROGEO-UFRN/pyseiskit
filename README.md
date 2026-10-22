@@ -16,4 +16,4 @@ pip install pyseiskit
 ## [Available Demos](/demos) 
   - [Wiggle plotting with common libraries](/demos/wiggle.ipynb)
   - [Gain methods](/demos/gain.ipynb)
-  - [Velocity model building](/demos/velocityModel.ipynb) ([benchmark against Seismic Unix](/demos/velocityModelBenchmark.ipynb))
+  - [Velocity model smoothing](/demos/velocityModel.ipynb)
