@@ -3,6 +3,7 @@ from .modules import gain
 from .modules import sourceData
 from .modules import clip
 from .modules import fk
+from .modules import velocityModel
 
 # Single-export modules/items exposed directly at the root
 from .modules.palettes.PALETTES import PALETTES

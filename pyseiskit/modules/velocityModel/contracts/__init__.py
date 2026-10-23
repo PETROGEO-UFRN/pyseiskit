@@ -1,0 +1,1 @@
+from .MovingAverageSmoothingContract import MovingAverageSmoothingContract
