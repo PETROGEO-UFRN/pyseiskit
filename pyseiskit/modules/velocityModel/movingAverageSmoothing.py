@@ -64,12 +64,15 @@ def applyMovingAverageSmoothing(
     if velocityModel.ndim != 2:
         raise ValueError("velocityModel must be a 2D array of shape (samples, cdps).")
 
+    # *** convolve1d sums in the input dtype, so float32 models are summed in float64
+    velocityModel = np.array(velocityModel, dtype=float)
+
     halfTimeSamples = round(timeWindow / intervalTimeSamples) // 2
     halfCdps = round(cdpWindow / intervalCdps) // 2
 
     # *** a 1 x 1 box averages each sample with itself
     if halfTimeSamples == 0 and halfCdps == 0:
-        return np.array(velocityModel, dtype=float)
+        return velocityModel
 
     velocitySums = computeBoxSums(velocityModel, halfTimeSamples, halfCdps)
     sampleCounts = computeBoxSums(np.ones(velocityModel.shape), halfTimeSamples, halfCdps)
