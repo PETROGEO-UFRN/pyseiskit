@@ -33,3 +33,6 @@ venv.bak/
 *.segy
 *.sgy
 *.dat
+
+# Agent container credentials
+.infra/.secrets/

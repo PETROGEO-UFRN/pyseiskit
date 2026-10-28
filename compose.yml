@@ -1,0 +1,7 @@
+# *** Each service lives in its own file under .infra/compose/.
+# *** project_directory: . keeps their relative paths rooted at the repo on both engines:
+# *** docker compose would otherwise resolve them from the included file's folder,
+# *** while podman-compose always resolves them from here.
+include:
+  - path: .infra/compose/agent.yml
+    project_directory: .
