@@ -12,7 +12,7 @@ running benchmarks against Seismic Unix and documenting them. Start it with `mak
 | `.github/`, `pyproject.toml`, `uv.lock`, `README.md`, `LICENSE`, `.gitignore` | read-only | CI publishes to PyPI from them |
 | `Makefile`, `compose.yml`, `docker/`, `.dockerignore`, `.agents/` | read-only | its own container and config |
 | `.agents/hermes.yaml` | read-write | mounted as its Hermes config, so `hermes config set` works |
-| `/data` | read-only | benchmark datasets from `PYSEISKIT_DATA_DIR` |
+| `data/`, `/data` | read-only | benchmark datasets: the repo's `data/` folder, or `PYSEISKIT_DATA_DIR` at `/data` |
 
 The container venv lives in its own volume (`UV_PROJECT_ENVIRONMENT`), so it never touches
 a host `.venv`. Seismic Unix 44R28 is in the image (`CWPROOT=/opt/cwp/44R28`).
@@ -22,8 +22,8 @@ a host `.venv`. Seismic Unix 44R28 is in the image (`CWPROOT=/opt/cwp/44R28`).
 1. Credentials, in `.secrets/` (gitignored, hidden inside the container):
    - `agent.env` with `GH_APP_ID=<GitHub App id>`;
    - the GitHub App private key (`*.private-key.pem`), mounted read-only at `/run/secrets`.
-2. Benchmark datasets: a host folder, `$HOME/seismicData` by default
-   (`make agent PYSEISKIT_DATA_DIR=/path/to/data` to change it).
+2. Benchmark datasets: the repo's `data/` folder (contents gitignored) by default
+   (`make agent PYSEISKIT_DATA_DIR=/path/to/data` to use another host folder).
 3. `make agent`. On the first start, log in to Claude: `claude` -> `/login`, then
    `hermes chat --provider anthropic`.
 

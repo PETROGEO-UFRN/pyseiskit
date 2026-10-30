@@ -52,6 +52,7 @@ services:
       - ./.secrets:/run/secrets:ro
       # *** Benchmark datasets (.su/.segy), never written by the agent
       - ${PYSEISKIT_DATA_DIR}:/data:ro
+      - ./data:/workspace/data:ro
       - agent-claude:/home/agent/.claude
       - agent-venv:/home/agent/.venvs
       # *** Hermes home: holds state.db, which Hermes requires to be a real file directly

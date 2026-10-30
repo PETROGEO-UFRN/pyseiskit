@@ -35,4 +35,9 @@ venv.bak/
 *.dat
 
 # Agent container credentials
-.secrets/
+.secrets/*
+!.secrets/.gitkeep
+
+# Benchmark datasets
+data/*
+!data/.gitkeep

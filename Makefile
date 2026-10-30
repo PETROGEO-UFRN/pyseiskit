@@ -2,9 +2,9 @@
 export UID := $(shell id -u)
 export GID := $(shell id -g)
 
-# Benchmark datasets folder on the host, mounted read-only at /data.
+# Benchmark datasets mounted read-only at /data: the repo's data/ folder by default.
 # Override with `make agent PYSEISKIT_DATA_DIR=/path/to/data`.
-export PYSEISKIT_DATA_DIR := $(or $(PYSEISKIT_DATA_DIR),$(HOME)/seismicData)
+export PYSEISKIT_DATA_DIR := $(or $(PYSEISKIT_DATA_DIR),$(CURDIR)/data)
 
 # Prefers podman when installed, falls back to docker (`make agent CONTAINER_ENGINE=docker`).
 CONTAINER_ENGINE := $(or $(CONTAINER_ENGINE),$(shell command -v podman >/dev/null 2>&1 && echo podman || echo docker))
