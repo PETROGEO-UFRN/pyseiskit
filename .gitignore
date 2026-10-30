@@ -35,4 +35,4 @@ venv.bak/
 *.dat
 
 # Agent container credentials
-.infra/.secrets/
+.secrets/

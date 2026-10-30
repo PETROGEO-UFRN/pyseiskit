@@ -58,6 +58,6 @@ RUN curl -LsSf https://github.com/astral-sh/uv/releases/download/0.13.6/uv-insta
 
 RUN git config --global --add safe.directory /workspace
 
-COPY .infra/docker/agent-entrypoint.sh /entrypoint.sh
+COPY docker/agent-entrypoint.sh /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]

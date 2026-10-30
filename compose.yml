@@ -1,7 +1,74 @@
-# *** Each service lives in its own file under .infra/compose/.
-# *** project_directory: . keeps their relative paths rooted at the repo on both engines:
-# *** docker compose would otherwise resolve them from the included file's folder,
-# *** while podman-compose always resolves them from here.
-include:
-  - path: .infra/compose/agent.yml
-    project_directory: .
+services:
+  agent:
+    image: pyseiskit-agent
+    container_name: pyseiskit-agent
+    build:
+      context: .
+      dockerfile: docker/agent.Dockerfile
+      args:
+        UID: ${UID}
+        GID: ${GID}
+    user: "${UID}:${GID}"
+    userns_mode: ${USERNS_MODE:-}
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,nodev
+      # *** Masks the secrets inside the repo mount below
+      - /workspace/.secrets
+    environment:
+      - UID
+      - GID
+    # *** GH_APP_ID for the GitHub App identity the agent opens PRs with
+    env_file:
+      - ./.secrets/agent.env
+    stdin_open: true
+    tty: true
+    ports:
+      # *** Jupyter for the benchmark notebooks, reachable from this host only
+      - 127.0.0.1:8888:8888
+    volumes:
+      # *** The repo is writable: source, demos, docs, benchmark and new folders (e.g. tests)
+      - .:/workspace
+      # *** Shared with the host's git: the agent opens PRs from its own clone instead
+      - ./.git:/workspace/.git:ro
+      # *** Release and packaging inputs: CI publishes from them
+      - ./.github:/workspace/.github:ro
+      - ./pyproject.toml:/workspace/pyproject.toml:ro
+      - ./uv.lock:/workspace/uv.lock:ro
+      - ./README.md:/workspace/README.md:ro
+      - ./LICENSE:/workspace/LICENSE:ro
+      - ./.gitignore:/workspace/.gitignore:ro
+      # *** The agent's own container and config
+      - ./Makefile:/workspace/Makefile:ro
+      - ./compose.yml:/workspace/compose.yml:ro
+      - ./.dockerignore:/workspace/.dockerignore:ro
+      - ./docker:/workspace/docker:ro
+      - ./.agents:/workspace/.agents:ro
+      - ./.agents/hermes.yaml:/home/agent/.hermes/config.yaml
+      # *** GitHub App private key, outside the masked .secrets path
+      - ./.secrets:/run/secrets:ro
+      # *** Benchmark datasets (.su/.segy), never written by the agent
+      - ${PYSEISKIT_DATA_DIR}:/data:ro
+      - agent-claude:/home/agent/.claude
+      - agent-venv:/home/agent/.venvs
+      # *** Hermes home: holds state.db, which Hermes requires to be a real file directly
+      # *** inside it; the entrypoint links the runtime in from ~/.hermes-runtime
+      - agent-hermes-state:/home/agent/.hermes
+      - agent-hermes-sessions:/home/agent/.hermes/sessions
+      - agent-hermes-memories:/home/agent/.hermes/memories
+      - agent-hermes-skills:/home/agent/.hermes/skills
+      - agent-hermes-cron:/home/agent/.hermes/cron
+      - agent-hermes-hooks:/home/agent/.hermes/hooks
+
+volumes:
+  agent-claude: null
+  agent-venv: null
+  agent-hermes-state: null
+  agent-hermes-sessions: null
+  agent-hermes-memories: null
+  agent-hermes-skills: null
+  agent-hermes-cron: null
+  agent-hermes-hooks: null

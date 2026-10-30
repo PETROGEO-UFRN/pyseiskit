@@ -13,8 +13,9 @@ open PRs or comment with it.
 
 - `GH_APP_ID`: environment variable, from compose `env_file`.
 - App private key: `/run/secrets/*.private-key.pem`, mounted read-only.
-- `/workspace/.infra/.secrets` is an empty tmpfs mask ("Permission denied" is expected):
-  it holds nothing, never ask to make it readable.
+- The repo's secrets folder (gitignored, holding `agent.env` and the key) is covered inside
+  the container by an empty tmpfs mask ("Permission denied" is expected): it holds nothing,
+  never ask to make it readable.
 
 ## Check (names only, never print values)
 
@@ -34,9 +35,9 @@ When something is missing:
   and its entrypoint. A host `.env` or shell export only feeds `${...}` interpolation.
 - The `.pem` path is an empty directory: the compose mount's source file doesn't exist on
   the host (renamed key), so the engine created an empty directory in its place.
-- The fix for the user to apply (compose files are read-only for the agent):
-  `env_file: [./.infra/.secrets/agent.env]` and the folder mount
-  `./.infra/.secrets:/run/secrets:ro`, which never depends on the key's file name. Never
+- The fix for the user to apply (compose files are read-only for the agent): `env_file:`
+  pointing at the secrets folder's `agent.env`, and the whole folder mounted at
+  `/run/secrets:ro`, which never depends on the key's file name. Never
   put credentials in a Dockerfile `ENV`/`ARG`: they get baked into image layers.
 
 ## Rules

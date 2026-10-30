@@ -10,7 +10,7 @@ running benchmarks against Seismic Unix and documenting them. Start it with `mak
 | repo root (`pyseiskit/`, `demos/`, `docs/`, `benchmark/`, new folders) | read-write | the work itself |
 | `.git` | read-only | it is the host's checkout; the agent opens PRs from its own clone in its Hermes volume |
 | `.github/`, `pyproject.toml`, `uv.lock`, `README.md`, `LICENSE`, `.gitignore` | read-only | CI publishes to PyPI from them |
-| `Makefile`, `compose.yml`, `.infra/`, `.agents/` | read-only | its own container and config |
+| `Makefile`, `compose.yml`, `docker/`, `.dockerignore`, `.agents/` | read-only | its own container and config |
 | `.agents/hermes.yaml` | read-write | mounted as its Hermes config, so `hermes config set` works |
 | `/data` | read-only | benchmark datasets from `PYSEISKIT_DATA_DIR` |
 
@@ -19,7 +19,7 @@ a host `.venv`. Seismic Unix 44R28 is in the image (`CWPROOT=/opt/cwp/44R28`).
 
 ## Setup
 
-1. Credentials, in `.infra/.secrets/` (gitignored, hidden inside the container):
+1. Credentials, in `.secrets/` (gitignored, hidden inside the container):
    - `agent.env` with `GH_APP_ID=<GitHub App id>`;
    - the GitHub App private key (`*.private-key.pem`), mounted read-only at `/run/secrets`.
 2. Benchmark datasets: a host folder, `$HOME/seismicData` by default
