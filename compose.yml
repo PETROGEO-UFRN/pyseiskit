@@ -18,9 +18,6 @@ services:
       - /tmp:rw,noexec,nosuid,nodev
       # *** Masks the secrets inside the repo mount below
       - /workspace/.secrets
-    environment:
-      - UID
-      - GID
     # *** GH_APP_ID for the GitHub App identity the agent opens PRs with
     env_file:
       - ./.secrets/agent.env

@@ -1,11 +1,6 @@
 #!/bin/bash
 set -e
 
-if [ -z "${UID}" ] || [ -z "${GID}" ]; then
-    echo "ERROR: UID and GID environment variables must be provided (use 'make agent')" >&2
-    exit 1
-fi
-
 # ~/.hermes is a volume. The runtime dirs are linked from the image so a rebuild updates
 # Hermes; the remaining installer files (.env, SOUL.md, bundled skills, ...) are copied
 # only where the volume has no copy yet.
