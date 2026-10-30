@@ -2,10 +2,6 @@
 export UID := $(shell id -u)
 export GID := $(shell id -g)
 
-# Benchmark datasets mounted read-only at /data: the repo's data/ folder by default.
-# Override with `make agent PYSEISKIT_DATA_DIR=/path/to/data`.
-export PYSEISKIT_DATA_DIR := $(or $(PYSEISKIT_DATA_DIR),$(CURDIR)/data)
-
 # Prefers podman when installed, falls back to docker (`make agent CONTAINER_ENGINE=docker`).
 CONTAINER_ENGINE := $(or $(CONTAINER_ENGINE),$(shell command -v podman >/dev/null 2>&1 && echo podman || echo docker))
 
@@ -22,7 +18,6 @@ COMPOSE = $(CONTAINER_ENGINE) compose $(COMPOSE_FLAGS)
 .PHONY: agent
 
 agent:
-	@test -d "$(PYSEISKIT_DATA_DIR)" || { echo "Benchmark data folder $(PYSEISKIT_DATA_DIR) not found."; exit 1; }
 	@test -f .secrets/agent.env || { echo "Missing .secrets/agent.env, see docs/agentContainer.md"; exit 1; }
 	# Build (cached, so cheap when nothing changed) and start the agent detached
 	$(COMPOSE) up -d --build agent
