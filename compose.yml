@@ -17,14 +17,14 @@ services:
     tmpfs:
       - /tmp:rw,noexec,nosuid,nodev
       # *** Masks the secrets inside the repo mount below
-      - /workspace/.secrets
+      - /workspace/.secrets:notmpcopyup
     # *** GH_APP_ID for the GitHub App identity the agent opens PRs with
     env_file:
       - ./.secrets/agent.env
     stdin_open: true
     tty: true
     ports:
-      # *** Jupyter for the benchmark notebooks, reachable from this host only
+      # *** Jupyter server for the demo & benchmark notebooks, reachable from this host only
       - 127.0.0.1:8888:8888
     volumes:
       # *** The repo is writable: source, demos, docs, benchmark and new folders (e.g. tests)
@@ -47,8 +47,9 @@ services:
       - ./.agents/hermes.yaml:/home/agent/.hermes/config.yaml
       # *** GitHub App private key, outside the masked .secrets path
       - ./.secrets:/run/secrets:ro
-      # *** Benchmark datasets (.su/.segy), never written by the agent
-      - ./data:/workspace/data:ro
+      # *** Benchmark datasets (.su/.segy/.dat/etc), never written by the agent
+      - ./benchmarks:/workspace/benchmarks
+      - ./benchmarks/data:/workspace/benchmarks/data:ro
       - agent-claude:/home/agent/.claude
       - agent-venv:/home/agent/.venvs
       # *** Hermes home: holds state.db, which Hermes requires to be a real file directly
