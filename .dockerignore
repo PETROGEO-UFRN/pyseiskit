@@ -1,0 +1,4 @@
+# Build context: the image only copies its entrypoint, so nothing else
+# (secrets, datasets, a host .venv) is sent to the engine.
+*
+!docker/agent-entrypoint.sh

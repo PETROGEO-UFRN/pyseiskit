@@ -33,3 +33,11 @@ venv.bak/
 *.segy
 *.sgy
 *.dat
+
+# Agent container credentials
+.secrets/*
+!.secrets/.gitkeep
+
+# Benchmark datasets
+data/*
+!data/.gitkeep
