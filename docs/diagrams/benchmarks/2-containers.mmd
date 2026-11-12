@@ -1,0 +1,35 @@
+%% C4 level 2, Containers: the processes and files of one run (one --impl).
+%%{init: {"flowchart": {"wrappingWidth": 300, "nodeSpacing": 40, "rankSpacing": 60}}}%%
+flowchart TB
+    dev["<b>Developer</b><br/><i>[Person]</i>"]
+
+    subgraph run["python -m benchmarks.run --impl su | pyseiskit"]
+        parent["<b>Parent process</b><br/><i>[Python: run.py, cases.py, su.py]</i><br/>Pins to a performance core; generates missing inputs; runs every case once on both sides and drops any that differ; pyperf then starts the workers"]
+        worker["<b>pyperf worker processes</b><br/><i>[Python: same script with --worker]</i><br/>Calibrate loops, warm up, time one benchmark; values go back to the parent"]
+        suproc["<b>SU program</b><br/><i>[Process, --impl su]</i><br/>One per timed loop"]
+    end
+
+    cache[("<b>Input cache</b><br/><i>[~/.cache/pyseiskit-benchmarks]</i><br/>suplane | suaddnoise, one file per size")]
+    data[("<b>benchmarks/data/</b><br/><i>[Your SU files, --input]</i>")]
+    shm[("<b>Outputs</b><br/><i>[/dev/shm]</i><br/>Overwritten every loop")]
+    json[("<b>Results</b><br/><i>[su.json, pyseiskit.json]</i><br/>pyperf format")]
+
+    dev -- "runs once per side" --> parent
+    parent -- "spawns" --> worker
+    worker -- "--impl su: starts" --> suproc
+    worker -- "reads" --> cache
+    worker -- "reads" --> data
+    suproc -- "writes" --> shm
+    worker -- "--impl pyseiskit: writes" --> shm
+    parent -- "writes -o" --> json
+    report["<b>Report</b><br/><i>[Python: report/, python -m benchmarks.report.cli]</i><br/>End-to-end and compute speedups"]
+    dev -- "afterwards, with both files" --> report
+    report -- "reads" --> json
+
+    classDef person fill:#08427b,stroke:#052e56,color:#fff
+    classDef container fill:#438dd5,stroke:#2e6295,color:#fff
+    classDef store fill:#85bbf0,stroke:#5d82a8,color:#000
+    class dev person
+    class parent,worker,suproc,report container
+    class cache,data,shm,json store
+    style run fill:#ffffff,stroke:#438dd5,stroke-dasharray:6 4,color:#2e6295

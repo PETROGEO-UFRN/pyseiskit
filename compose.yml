@@ -48,7 +48,6 @@ services:
       # *** GitHub App private key, outside the masked .secrets path
       - ./.secrets:/run/secrets:ro
       # *** Benchmark datasets (.su/.segy/.dat/etc), never written by the agent
-      - ./benchmarks:/workspace/benchmarks
       - ./benchmarks/data:/workspace/benchmarks/data:ro
       - agent-claude:/home/agent/.claude
       - agent-venv:/home/agent/.venvs
