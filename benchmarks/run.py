@@ -1,4 +1,7 @@
-"""Time Seismic Unix or pyseiskit on the same inputs with pyperf. See README.md."""
+"""Time Seismic Unix or pyseiskit on the same inputs with pyperf: python -m benchmarks.run.
+
+See README.md.
+"""
 import argparse
 import atexit
 import os
@@ -69,7 +72,7 @@ def forward(cmd, args):
 
 def main():
     sys.argv = with_default_affinity(sys.argv)
-    runner = pyperf.Runner(program_args=("-m", "benchmarks"), add_cmdline_args=forward)
+    runner = pyperf.Runner(program_args=("-m", "benchmarks.run"), add_cmdline_args=forward)
     parser = runner.argparser
     parser.add_argument("--impl", choices=("su", "pyseiskit"), required=True)
     parser.add_argument("--case", action="append", metavar="GLOB",

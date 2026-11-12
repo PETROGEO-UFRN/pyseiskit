@@ -7,9 +7,10 @@ import unittest
 import numpy as np
 
 from . import su
-from .__main__ import cpu_list
 from .cases import CASES, IO, Case, mismatch
-from .report import rows
+from .report.speedups import rows
+from .report.table import render
+from .run import cpu_list
 
 TINY = su.Size("tiny", 64, 8, 0.004)
 
@@ -68,10 +69,12 @@ class PureTest(unittest.TestCase):
         su_s = {"io [small]": 0.010, "tpow [small]": 0.012}
         py_s = {"io [small]": 0.005, "tpow [small]": 0.008, "tpow [small] compute only": 0.004}
         (io, tpow) = rows(su_s, py_s)
-        self.assertEqual((io[3], io[6]), ("2.00x faster", "-"))
-        self.assertEqual(tpow[3], "1.50x faster")
-        self.assertAlmostEqual(tpow[4], 0.002)
-        self.assertEqual(tpow[6], "2.00x slower")
+        self.assertEqual((io.total_speed, io.compute_speed), ("2.00x faster", "-"))
+        self.assertEqual(tpow.total_speed, "1.50x faster")
+        self.assertIsNotNone(tpow.su_compute)
+        self.assertAlmostEqual(tpow.su_compute or 0.0, 0.002)
+        self.assertEqual(tpow.compute_speed, "2.00x slower")
+        self.assertIn("tpow [small]  12.00 ms  8.00 ms    1.50x faster", render([io, tpow]))
 
 
 if __name__ == "__main__":

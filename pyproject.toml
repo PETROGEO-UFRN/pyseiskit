@@ -47,7 +47,7 @@ Homepage = "https://github.com/PETROGEO-UFRN/pyseiskit"
 Repository = "https://github.com/PETROGEO-UFRN/pyseiskit"
 
 [dependency-groups]
-# python -m benchmarks (see benchmarks/README.md); pyperf needs Python 3.11+.
+# python -m benchmarks.run (see benchmarks/README.md); pyperf needs Python 3.11+.
 benchmarks = [
     "pyperf>=2.11; python_version >= '3.11'",
     # pyseiskit.modules.palettes imports bokeh, which pyseiskit does not declare yet.

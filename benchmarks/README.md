@@ -5,9 +5,9 @@ checking that both give the same output. Timing, statistics, CPU pinning, metada
 comparisons come from [pyperf](https://pyperf.readthedocs.io), the tool behind CPython's
 own benchmarks.
 
-    python -m benchmarks --impl su        -o su.json
-    python -m benchmarks --impl pyseiskit -o pyseiskit.json
-    python -m benchmarks.report su.json pyseiskit.json
+    python -m benchmarks.run --impl su        -o su.json
+    python -m benchmarks.run --impl pyseiskit -o pyseiskit.json
+    python -m benchmarks.report.cli su.json pyseiskit.json
 
 The report gives each case's speed relative to SU twice: end to end, and for the
 computation alone. Read both. SU pays for starting a program on every run, so on small
@@ -41,8 +41,10 @@ Needs Python 3.11+ (for pyperf) and SU on `PATH`.
     cases.py      every case: an SU command and the pyseiskit function that must match it
     su.py         SU inputs (suplane | suaddnoise, cached in ~/.cache/pyseiskit-benchmarks),
                   running SU, reading and writing SU files
-    __main__.py   the pyperf script: checks every case, then registers the benchmarks
-    report.py     end-to-end and compute speedups from the two result files
+    run.py        the pyperf script: checks every case, then registers the benchmarks
+    report/       end-to-end and compute speedups from the two result files:
+                  results.py loads them, speedups.py computes, table.py formats,
+                  cli.py is the command line
 
 For every case and input:
 

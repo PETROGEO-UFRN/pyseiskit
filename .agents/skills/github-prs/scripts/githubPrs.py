@@ -7,6 +7,8 @@ appears in commands or output.
     githubPrs.py check <repo>
     githubPrs.py push <repo> <clonePath> <branch>
     githubPrs.py pr <repo> <branch> <title> <bodyFile> [base]
+
+<repo> is "pyseiskit" or "PETROGEO-UFRN/pyseiskit".
 """
 import base64
 import glob
@@ -21,6 +23,14 @@ import urllib.request
 import jwt  # *** PyJWT, supplied by `uv run --with 'pyjwt[crypto]'`
 
 ORGANIZATION = "PETROGEO-UFRN"
+
+
+def bareRepoName(repo: str) -> str:
+    """Accept "pyseiskit" or "PETROGEO-UFRN/pyseiskit": the app only serves ORGANIZATION."""
+    owner, _, name = repo.rpartition("/")
+    if owner and owner != ORGANIZATION:
+        raise SystemExit(f"{repo}: this app only works on {ORGANIZATION} repositories")
+    return name
 
 
 def api(method: str, path: str, token: str, body=None):
@@ -60,7 +70,7 @@ def appToken(repoName: str) -> tuple[str, dict]:
     )
     status, installation = api("GET", f"/repos/{ORGANIZATION}/{repoName}/installation", appJwt)
     if status != 200:
-        raise SystemExit(f"app not installed on {repoName}: {status}")
+        raise SystemExit(f"app not installed on {ORGANIZATION}/{repoName}: {status}")
     status, token = api(
         "POST", f"/app/installations/{installation['id']}/access_tokens", appJwt,
         {"repositories": [repoName]},
@@ -103,6 +113,8 @@ def openPullRequest(repoName: str, branch: str, title: str, bodyFile: str, base:
 
 if __name__ == "__main__":
     command = sys.argv[1] if len(sys.argv) > 1 else ""
+    if len(sys.argv) > 2:
+        sys.argv[2] = bareRepoName(sys.argv[2])
     if command == "check" and len(sys.argv) == 3:
         check(sys.argv[2])
         raise SystemExit(0)

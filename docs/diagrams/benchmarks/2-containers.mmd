@@ -3,8 +3,8 @@
 flowchart TB
     dev["<b>Developer</b><br/><i>[Person]</i>"]
 
-    subgraph run["python -m benchmarks --impl su | pyseiskit"]
-        parent["<b>Parent process</b><br/><i>[Python: __main__.py, cases.py, su.py]</i><br/>Pins to a performance core; generates missing inputs; runs every case once on both sides and drops any that differ; pyperf then starts the workers"]
+    subgraph run["python -m benchmarks.run --impl su | pyseiskit"]
+        parent["<b>Parent process</b><br/><i>[Python: run.py, cases.py, su.py]</i><br/>Pins to a performance core; generates missing inputs; runs every case once on both sides and drops any that differ; pyperf then starts the workers"]
         worker["<b>pyperf worker processes</b><br/><i>[Python: same script with --worker]</i><br/>Calibrate loops, warm up, time one benchmark; values go back to the parent"]
         suproc["<b>SU program</b><br/><i>[Process, --impl su]</i><br/>One per timed loop"]
     end
@@ -22,7 +22,7 @@ flowchart TB
     suproc -- "writes" --> shm
     worker -- "--impl pyseiskit: writes" --> shm
     parent -- "writes -o" --> json
-    report["<b>Report</b><br/><i>[Python: python -m benchmarks.report]</i><br/>End-to-end and compute speedups"]
+    report["<b>Report</b><br/><i>[Python: report/, python -m benchmarks.report.cli]</i><br/>End-to-end and compute speedups"]
     dev -- "afterwards, with both files" --> report
     report -- "reads" --> json
 

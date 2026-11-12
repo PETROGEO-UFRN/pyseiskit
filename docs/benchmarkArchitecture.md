@@ -20,7 +20,7 @@ must match, so a benchmark never times a wrong result.
 ![Containers](diagrams/benchmarks/2-containers.svg)
 
 Each side is one pyperf run that writes its own results file, with the same benchmark
-names on both sides. `python -m benchmarks.report` reads both and gives every case's speed
+names on both sides. `python -m benchmarks.report.cli` reads both and gives every case's speed
 relative to SU, end to end and for the computation alone.
 
 Decisions worth knowing:

@@ -3,13 +3,13 @@
 flowchart TB
     dev["<b>Developer, CI or agent</b><br/><i>[Person]</i><br/>Runs both sides, compares the results"]
 
-    suite["<b>Benchmarks</b><br/><i>[Software System: python -m benchmarks]</i><br/>Checks that pyseiskit's output matches SU's, then registers one benchmark per case and input with pyperf"]
+    suite["<b>Benchmarks</b><br/><i>[Software System: python -m benchmarks.run]</i><br/>Checks that pyseiskit's output matches SU's, then registers one benchmark per case and input with pyperf"]
 
     pyperf["<b>pyperf</b><br/><i>[Library and CLI]</i><br/>Worker processes, calibration, statistics,<br/>CPU pinning, JSON results, significance tests"]
     su["<b>Seismic Unix 44R28</b><br/><i>[External System]</i><br/>Reference programs (sugain, ...);<br/>also generates the inputs"]
     lib["<b>pyseiskit</b><br/><i>[Software System under test]</i><br/>Functions that should match SU"]
 
-    dev -- "python -m benchmarks --impl su|pyseiskit;<br/>python -m benchmarks.report" --> suite
+    dev -- "python -m benchmarks.run --impl su|pyseiskit;<br/>python -m benchmarks.report.cli" --> suite
     suite -- "bench_time_func" --> pyperf
     suite -- "runs as processes<br/><i>[SU file on stdin/stdout]</i>" --> su
     suite -- "calls functions<br/><i>[numpy arrays]</i>" --> lib

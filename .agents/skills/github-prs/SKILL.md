@@ -54,9 +54,7 @@ When something is missing:
 ## Script
 
 `scripts/githubPrs.py` mints a one-hour installation token per call; the token never
-reaches the output or `.git/config`. `<repo>` is the bare repo name (`pyseiskit`): the
-script adds the organization itself, so `PETROGEO-UFRN/pyseiskit` fails with a misleading
-"app not installed ... 404". Run it from the repo root with uv (install uv into
+reaches the output or `.git/config`. Run it from the repo root with uv (install uv into
 `~/.local/bin` if missing; `--no-project` keeps uv from creating a `.venv` or touching
 `uv.lock`):
 
