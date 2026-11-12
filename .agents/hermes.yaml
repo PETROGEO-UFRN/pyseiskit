@@ -1,5 +1,5 @@
 # Matches the schema of the installed Hermes, so it skips its config migration.
-_config_version: 51
+_config_version: 53
 
 # Use the Claude account login (borrowed from Claude Code in ~/.claude); "auto" ignores it.
 model:

@@ -7,12 +7,12 @@ running benchmarks against Seismic Unix and documenting them. Start it with `mak
 
 | Path | Access | Why |
 | --- | --- | --- |
-| repo root (`pyseiskit/`, `demos/`, `docs/`, `benchmark/`, new folders) | read-write | the work itself |
+| repo root (`pyseiskit/`, `demos/`, `docs/`, `benchmarks/`, new folders) | read-write | the work itself |
 | `.git` | read-only | it is the host's checkout; the agent opens PRs from its own clone in its Hermes volume |
 | `.github/`, `pyproject.toml`, `uv.lock`, `README.md`, `LICENSE`, `.gitignore` | read-only | CI publishes to PyPI from them |
 | `Makefile`, `compose.yml`, `docker/`, `.dockerignore`, `.agents/` | read-only | its own container and config |
 | `.agents/hermes.yaml` | read-write | mounted as its Hermes config, so `hermes config set` works |
-| `data/` | read-only | benchmark datasets (contents gitignored) |
+| `benchmarks/data/` | read-only | benchmark datasets (contents gitignored) |
 
 The container venv lives in its own volume (`UV_PROJECT_ENVIRONMENT`), so it never touches
 a host `.venv`. Seismic Unix 44R28 is in the image (`CWPROOT=/opt/cwp/44R28`).
@@ -22,7 +22,7 @@ a host `.venv`. Seismic Unix 44R28 is in the image (`CWPROOT=/opt/cwp/44R28`).
 1. Credentials, in `.secrets/` (gitignored, hidden inside the container):
    - `agent.env` with `GH_APP_ID=<GitHub App id>`;
    - the GitHub App private key (`*.private-key.pem`), mounted read-only at `/run/secrets`.
-2. Benchmark datasets: put them in `data/`.
+2. Benchmark datasets: put them in `benchmarks/data/`.
 3. `make agent`. On the first start, log in to Claude: `claude` -> `/login`, then
    `hermes chat --provider anthropic`.
 

@@ -39,5 +39,5 @@ venv.bak/
 !.secrets/.gitkeep
 
 # Benchmark datasets
-data/*
-!data/.gitkeep
+benchmarks/data/*
+!benchmarks/data/.gitkeep
