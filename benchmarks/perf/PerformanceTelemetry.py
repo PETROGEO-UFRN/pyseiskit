@@ -4,7 +4,7 @@ import time
 
 import numpy as np
 
-from ..consts import MICROSECONDS_PER_SECOND
+from ..consts.SCALE_CONVERSION import MICROSECONDS_TO_SECONDS
 from .cgroupServices import (
     openAndResetMemoryPeak,
     readAndCloseMemoryPeak,
@@ -56,7 +56,7 @@ class PerformanceTelemetry:
         # stop the measurement
         wallSeconds = time.perf_counter() - self.__startWallSeconds
         cpuMicroseconds = readCPUMicroseconds(readCgroupPath()) - self.__startCPUMicroseconds
-        cpuSeconds = cpuMicroseconds / MICROSECONDS_PER_SECOND
+        cpuSeconds = cpuMicroseconds * MICROSECONDS_TO_SECONDS
         # Memory of every process in the cgroup, SU programs included. The kernel also counts
         # the file cache of files written during the run, such as SU's output file.
         peakMemoryIncreaseBytes = readAndCloseMemoryPeak(self.__memoryPeakFile) - self.__startMemoryBytes

@@ -53,6 +53,9 @@ benchmarks = [
     # pyseiskit.modules.palettes imports bokeh, which pyseiskit does not declare yet.
     "bokeh",
 ]
+dev = [
+    "pydantic>=2.13.5",
+]
 
 [tool.hatch.build.targets.wheel]
 packages = [

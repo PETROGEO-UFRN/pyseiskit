@@ -5,7 +5,7 @@ from typing import Callable
 import numpy as np
 import segyio
 
-from ..consts import MICROSECONDS_PER_SECOND
+from ..consts.SCALE_CONVERSION import MICROSECONDS_TO_SECONDS
 from ..perf.PerformanceTelemetry import PerformanceTelemetry
 
 @dataclass(frozen=True)
@@ -20,7 +20,7 @@ def readDatasetProps(datasetPath: str) -> DatasetProps:
     with segyio.su.open(datasetPath, ignore_geometry=True, endian=sys.byteorder) as suFile:
         firstTraceInterval = suFile.attributes(segyio.TraceField.TRACE_SAMPLE_INTERVAL)[0]
         dtMicroseconds = int(firstTraceInterval[0])
-        return DatasetProps(suFile.trace.raw[:].T, dtMicroseconds / MICROSECONDS_PER_SECOND)
+        return DatasetProps(suFile.trace.raw[:].T, dtMicroseconds * MICROSECONDS_TO_SECONDS)
 
 def runPyseiskitEngine(
     workflow: Callable[[DatasetProps], np.ndarray],
