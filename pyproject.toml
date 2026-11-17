@@ -47,15 +47,19 @@ Homepage = "https://github.com/PETROGEO-UFRN/pyseiskit"
 Repository = "https://github.com/PETROGEO-UFRN/pyseiskit"
 
 [dependency-groups]
-# python -m benchmarks.run (see benchmarks/README.md); pyperf needs Python 3.11+.
+# `make benchmark` (python -m benchmarks), with dev too (uv installs it by default)
 benchmarks = [
-    "pyperf>=2.11; python_version >= '3.11'",
+    "segyio",
+    "pydantic>=2.14.3",
     # pyseiskit.modules.palettes imports bokeh, which pyseiskit does not declare yet.
     "bokeh",
 ]
 dev = [
     "pydantic>=2.13.5",
 ]
+
+[tool.uv.dependency-groups]
+benchmarks = { requires-python = ">=3.11" }
 
 [tool.hatch.build.targets.wheel]
 packages = [

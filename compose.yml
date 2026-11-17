@@ -60,6 +60,18 @@ services:
       - agent-hermes-cron:/home/agent/.hermes/cron
       - agent-hermes-hooks:/home/agent/.hermes/hooks
 
+  benchmark:
+    build:
+      context: .
+      dockerfile: docker/benchmark.Dockerfile
+    # *** Each run gets its own cgroup, in the host's cgroup tree. Podman hands the container's
+    # *** cgroup to the container's root, which in rootless podman (no keep-id) is the host user.
+    cgroup: host
+    user: "0:0"
+    volumes:
+      - .:/workspace:ro
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+
 volumes:
   agent-claude: null
   agent-venv: null
